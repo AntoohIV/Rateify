@@ -1,47 +1,50 @@
-//
-//  HomeView.swift
-//  Rateify
-//
-//  Created by Antonio Odore on 10/12/24.
-//
-
 import SwiftUI
 
 struct HomeView: View {
+    @State private var ratedTracks = [(String, Int)]() // Tracks rated by the user
+    
+    var songList = SongList() // Simulating a list of songs
+
     var body: some View {
         NavigationView {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
-                    // Section 1
-                    VStack(alignment: .leading) {
-                        Text("Recently Played")
-                            .font(.headline)
-                            .padding(.horizontal)
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 15) {
-                                ForEach(0..<10) { _ in
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .fill(Color.gray.opacity(0.3))
-                                        .frame(width: 150, height: 150)
-                                }
-                            }
-                            .padding(.horizontal)
-                        }
-                    }
-                    
-                    // Section 2
+                    // Sezione per le canzoni consigliate
                     VStack(alignment: .leading) {
                         Text("Recommended for You")
                             .font(.headline)
                             .padding(.horizontal)
                         VStack(spacing: 15) {
-                            ForEach(0..<5) { _ in
+                            ForEach(songList.songs.prefix(5), id: \.id) { song in
                                 HStack {
                                     RoundedRectangle(cornerRadius: 10)
                                         .fill(Color.gray.opacity(0.3))
                                         .frame(width: 60, height: 60)
-                                    Text("Song/Playlist Name")
-                                        .font(.body)
+                                    VStack(alignment: .leading) {
+                                        Text(song.title)
+                                            .font(.body)
+                                            .lineLimit(1)
+                                        Text(song.artist)
+                                            .font(.subheadline)
+                                            .lineLimit(1)
+                                        Text("Duration: \(Int(song.duration / 60)) min")
+                                            .font(.caption)
+                                            .foregroundColor(.gray)
+                                        if let releaseDate = song.releaseDate {
+                                            Text("Released: \(releaseDate, formatter: dateFormatter)")
+                                                .font(.caption)
+                                                .foregroundColor(.gray)
+                                        }
+                                        // Rating Button
+                                        Button(action: {
+                                            // Add the song to ratedTracks with a rating of 4 (for example)
+                                            ratedTracks.append((song.title, 4))
+                                        }) {
+                                            Text("Rate this Song")
+                                                .font(.caption)
+                                                .foregroundColor(.blue)
+                                        }
+                                    }
                                     Spacer()
                                 }
                                 .padding(.horizontal)
@@ -55,6 +58,14 @@ struct HomeView: View {
         }
     }
 }
+
+private let dateFormatter: DateFormatter = {
+    let formatter = DateFormatter()
+    formatter.dateStyle = .short
+    return formatter
+}()
+
+
 #Preview {
     HomeView()
 }

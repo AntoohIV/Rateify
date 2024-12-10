@@ -1,23 +1,11 @@
-//
-//  ProfileView.swift
-//  Rateify
-//
-//  Created by Antonio Odore on 10/12/24.
-//
-
 import SwiftUI
 
 struct ProfileView: View {
+    @State private var ratedTracks = [(String, Int)]() // Tracks rated by the user
+    
     // Simuliamo un profilo con dati di esempio
     let userName = "John Doe"
     let userImage = "person.circle.fill"
-    
-    // Simuliamo canzoni con valutazione 1 stella
-    let ratedTracks = [
-        ("Song 1", 1),
-        ("Song 2", 1),
-        ("Song 3", 1)
-    ]
     
     var body: some View {
         NavigationView {
@@ -78,10 +66,21 @@ struct ProfileView: View {
                 Spacer()
             }
             .navigationTitle("Profile")
+            .onAppear {
+                // Load rated songs (simulate loading for demo)
+                loadRatedSongs()
+            }
         }
     }
+    
+    // Simula il caricamento di canzoni votate
+    func loadRatedSongs() {
+        // For demo purposes, we add a few songs with ratings
+        ratedTracks.append(("Song 1", 3))
+        ratedTracks.append(("Song 2", 5))
+        ratedTracks.append(("Song 3", 4))
+    }
 }
-
 
 #Preview {
     ProfileView()
