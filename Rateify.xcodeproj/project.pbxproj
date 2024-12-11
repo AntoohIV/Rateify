@@ -21,11 +21,6 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		AE49E6462D09F63900D1DE60 /* Components */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Components;
-			sourceTree = "<group>";
-		};
 		AEA3AD8F2D03480C00748DCB /* Rateify */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -51,7 +46,6 @@
 			isa = PBXGroup;
 			children = (
 				AEA3AD8F2D03480C00748DCB /* Rateify */,
-				AE49E6462D09F63900D1DE60 /* Components */,
 				AEA3AD8E2D03480C00748DCB /* Products */,
 			);
 			sourceTree = "<group>";
@@ -80,7 +74,6 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				AE49E6462D09F63900D1DE60 /* Components */,
 				AEA3AD8F2D03480C00748DCB /* Rateify */,
 			);
 			name = Rateify;
