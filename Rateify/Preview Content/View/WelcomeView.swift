@@ -1,20 +1,9 @@
-    /*
-    See LICENSE folder for this sample’s licensing information.
 
-    Abstract:
-    A view that introduces the purpose of the app to users.
-    */
 
     import MusicKit
     import SwiftUI
 
-    // MARK: - Welcome view
 
-    /// `WelcomeView` is a view that introduces to users the purpose of the MusicAlbums app,
-    /// and demonstrates best practices for requesting user consent for an app to get access to
-    /// Apple Music data.
-    ///
-    /// Present this view as a sheet using the convenience `.welcomeSheet()` modifier.
     struct WelcomeView: View {
         
         // MARK: - Properties
