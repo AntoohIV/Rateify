@@ -1,3 +1,9 @@
+//
+//  Song.swift
+//  Rateify
+//
+//  Created by Antonio Odore on 11/12/24.
+//
 import Foundation
 import SwiftData
 
@@ -139,7 +145,6 @@ struct SongList {
         return dateFormatter.date(from: date)
     }
 }
-
 
 
 
