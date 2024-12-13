@@ -1,57 +1,59 @@
-//
-//  ExploreView.swift
-//  Rateify
-//
-//  Created by Antonio Odore on 11/12/24.
-//
-
-
 import SwiftUI
 import MusicKit
 
 struct ExploreView: View {
+    @StateObject var viewModel = ExploreViewModel() // Use ViewModel to handle state
     @State private var searchTerm: String = ""
     @State private var searchResultSongs: MusicItemCollection<Song> = []
     @State private var isPerformingSearch: Bool = false
-
     @State private var musicSubscription: MusicSubscription?
     private var resultLimit: Int = 15
 
     var body: some View {
-        VStack(spacing: 16) {
-            HStack {
-                TextField("Search for songs", text: $searchTerm)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .padding(.horizontal)
+        NavigationStack {
+            VStack(spacing: 16) {
+                List {
+                    ForEach(searchResultSongs.prefix(resultLimit), id: \.id) { song in
+                        // Wrap each song in a NavigationLink to navigate to a details screen
+                        NavigationLink(destination: SongDetailView(song: song)) {
+                            SongInfoView(songItem: song)
+                        }
+                        .buttonStyle(PlainButtonStyle()) // Optional: to avoid the default button style
+                        .listRowSeparator(.hidden, edges: .all)
+                    }
+                }
+                .listStyle(.plain)
+                .navigationTitle("Search for Songs")
+                .searchable(text: $viewModel.searchText, prompt: "Search for songs...")
+                .onChange(of: viewModel.searchText) { old, newSearchTerm in
+                    performSearch()
+                }
 
                 if isPerformingSearch {
                     ProgressView()
                         .padding(.trailing)
                 } else {
-                    Button(action: performSearch) {
-                        Image(systemName: "magnifyingglass")
-                            .foregroundColor(.blue)
-                            .padding(.trailing)
+                    if !searchResultSongs.isEmpty {
+                        Text("Results found: \(searchResultSongs.count)")
+                            .foregroundColor(.gray)
+                            .padding()
+                    } else if !isPerformingSearch && !searchTerm.isEmpty {
+                        Text("No results found.")
+                            .foregroundColor(.gray)
+                            .padding()
+                    } else if !(musicSubscription?.canPlayCatalogContent ?? false) {
+                        Text("You need an active subscription to view content.")
+                            .foregroundColor(.red)
+                            .padding()
                     }
-                    .disabled(searchTerm.isEmpty || !(musicSubscription?.canPlayCatalogContent ?? false))
                 }
-            }
 
-            if !searchResultSongs.isEmpty {
-                List(searchResultSongs, id: \.id) { song in
-                    SongInfoView(songItem: song)
+                Spacer()
+            }
+            .task {
+                for await subscription in MusicSubscription.subscriptionUpdates {
+                    self.musicSubscription = subscription
                 }
-            } else if !isPerformingSearch && !searchTerm.isEmpty {
-                Text("No results found.")
-                    .foregroundColor(.gray)
-                    .padding()
-            }
-
-            Spacer()
-        }
-        .task {
-            for await subscription in MusicSubscription.subscriptionUpdates {
-                self.musicSubscription = subscription
             }
         }
     }
@@ -59,7 +61,7 @@ struct ExploreView: View {
     private func performSearch() {
         Task {
             do {
-                let request = MusicCatalogSearchRequest(term: searchTerm, types: [Song.self])
+                let request = MusicCatalogSearchRequest(term: viewModel.searchText, types: [Song.self])
                 self.isPerformingSearch = true
                 let response = try await request.response()
                 self.isPerformingSearch = false
@@ -71,6 +73,11 @@ struct ExploreView: View {
         }
     }
 }
+
+class ExploreViewModel: ObservableObject {
+    @Published var searchText: String = ""
+}
+
 
 #Preview {
     ExploreView()
