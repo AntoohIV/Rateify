@@ -1,8 +1,9 @@
 
+<p align="center">
+  <img src="RateifyLogo.png" width="200" style="border: 2px solid #000000; border-radius: 40px;" />
+</p>
 
----
-
-# Rateify 🎶⭐
+<h1 align="center">Rateify 🎶⭐</h1>
 
 **Rateify** è un'applicazione che ti permette di dare un voto alle canzoni che ami, utilizzando MusicKit per l'integrazione musicale. Ora puoi registrare la tua opinione sulle tue tracce preferite e tenere traccia delle tue valutazioni musicali!
 
