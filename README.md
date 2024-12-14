@@ -5,35 +5,35 @@
 
 <h1 align="center">Rateify 🎶⭐</h1>
 
-**Rateify** è un'applicazione che ti permette di dare un voto alle canzoni che ami, utilizzando MusicKit per l'integrazione musicale. Ora puoi registrare la tua opinione sulle tue tracce preferite e tenere traccia delle tue valutazioni musicali!
+**Rateify** is an app that allows you to rate the songs you love, using MusicKit for seamless music integration. Now, you can record your opinion on your favorite tracks and keep track of your music ratings!
 
-## 🚀 Funzionalità
-- **Valuta le tue canzoni preferite**: Assegna un voto da 1 a 5 a ogni brano che ascolti.
-- **Integrazione con MusicKit**: Accedi alla tua libreria musicale e ascolta i brani direttamente nell'app.
-- **Interfaccia semplice e intuitiva**: Facile navigazione per valutare e esplorare le tue canzoni preferite.
+## 🚀 Features
+- **Rate your favorite songs**: Assign a rating from 1 to 5 for every track you listen to.
+- **MusicKit integration**: Access your music library and listen to tracks directly within the app.
+- **Simple and intuitive interface**: Easy navigation to rate and explore your favorite songs.
 
-## 🛠️ Tecnologie
-- **SwiftUI**: Per una UI reattiva e moderna.
-- **MusicKit**: Per interagire con la libreria musicale di Apple.
-- **CoreData**: Per memorizzare le valutazioni e tenere traccia delle canzoni.
+## 🛠️ Technologies
+- **SwiftUI**: For a responsive and modern UI.
+- **MusicKit**: To interact with the Apple music library.
+- **CoreData**: To store ratings and track your songs.
 
-## 🎨 Come funziona
-1. Apri l'app e collegati al tuo account Apple Music.
-2. Esplora la tua libreria musicale o cerca nuove canzoni.
-3. Assegna un voto a ogni canzone che ascolti.
-4. Visualizza le tue canzoni preferite e le tue valutazioni.
+## 🎨 How it works
+1. Open the app and sign in with your Apple Music account.
+2. Explore your music library or search for new songs.
+3. Rate each song you listen to.
+4. View your favorite songs and your ratings.
 
-## 🔧 Come avviare il progetto
+## 🔧 How to get started
 
-1. Clona il repository:
+1. Clone the repository:
    ```bash
    git clone https://github.com/antoohiv/Rateify.git
    ```
-2. Apri il progetto in Xcode.
-3. Esegui il progetto su un simulatore o dispositivo reale.
+2. Open the project in Xcode.
+3. Run the project on a simulator or real device.
 
-## 🤝 Contribuisci
-Se vuoi contribuire al progetto, sentiti libero di fare un fork e inviare una pull request! Ogni contributo è benvenuto.
+## 🤝 Contribute
+If you'd like to contribute to the project, feel free to fork it and submit a pull request! Any contribution is welcome.
 
-## 📝 Licenza
-Questo progetto è concesso in licenza sotto la MIT License - vedi il file [LICENSE](LICENSE) per dettagli.
+## 📝 License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
