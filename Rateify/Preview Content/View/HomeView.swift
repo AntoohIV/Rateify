@@ -6,10 +6,28 @@
 //
 
 import SwiftUI
+import MusicKit
 
 struct HomeView: View {
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        NavigationStack {
+            VStack(spacing: 20) {
+                Text("Welcome to Rateify")
+                    .font(.headline)
+
+                NavigationLink(destination: SearchAlbumView()) {
+                    Text("Go to Album Search")
+                        .font(.title3)
+                        .foregroundColor(.white)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.blue)
+                        .cornerRadius(10)
+                }
+            }
+            .padding()
+            .navigationTitle("Home")
+        }
     }
 }
 
