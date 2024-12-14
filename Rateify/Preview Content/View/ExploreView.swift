@@ -1,97 +1,83 @@
-//
-//  ExploreView.swift
-//  Rateify
-//
-//  Created by Antonio Odore on 10/12/24.
-//
-
 import SwiftUI
+import MusicKit
 
 struct ExploreView: View {
-    let categories = [
-        ("Pop", Color.pink),
-        ("Hip-Hop", Color.blue),
-        ("Jazz", Color.orange),
-        ("Rock", Color.red),
-        ("Classical", Color.green),
-        ("Electronic", Color.purple),
-        ("Indie", Color.yellow),
-        ("R&B", Color.teal)
-    ]
-    
+    @StateObject var viewModel = ExploreViewModel() // Use ViewModel to handle state
+    @State private var searchTerm: String = ""
+    @State private var searchResultSongs: MusicItemCollection<Song> = []
+    @State private var isPerformingSearch: Bool = false
+    @State private var musicSubscription: MusicSubscription?
+    private var resultLimit: Int = 15
+
     var body: some View {
-        NavigationView {
-            VStack {
-                // Search Bar
-                HStack {
-                    TextField("Search...", text: .constant(""))
-                        .padding(10)
-                        .background(Color.gray.opacity(0.2))
-                        .cornerRadius(10)
-                        .padding(.horizontal)
-                        .overlay(
-                            HStack {
-                                Spacer()
-                                Image(systemName: "magnifyingglass")
-                                    .foregroundColor(.gray)
-                                    .padding(.trailing, 20)
-                            }
-                        )
-                }
-                .padding(.top)
-                
-                // Explore Categories
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 20) {
-                        Text("Explore Categories")
-                            .font(.headline)
-                            .padding(.horizontal)
-                        
-                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
-                            ForEach(categories, id: \.0) { category, color in
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 15)
-                                        .fill(color.opacity(0.7))
-                                        .frame(height: 120)
-                                    Text(category)
-                                        .font(.headline)
-                                        .foregroundColor(.white)
-                                }
-                            }
+        NavigationStack {
+            VStack(spacing: 16) {
+                List {
+                    ForEach(searchResultSongs.prefix(resultLimit), id: \.id) { song in
+                        // Wrap each song in a NavigationLink to navigate to a details screen
+                        NavigationLink(destination: SongDetailView(song: song)) {
+                            SongInfoView(songItem: song)
                         }
-                        .padding(.horizontal)
-                        
-                        // Suggested Playlists
-                        Text("Suggested Playlists")
-                            .font(.headline)
-                            .padding(.horizontal)
-                        
-                        VStack(spacing: 15) {
-                            ForEach(0..<5) { _ in
-                                HStack {
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .fill(Color.gray.opacity(0.3))
-                                        .frame(width: 60, height: 60)
-                                    VStack(alignment: .leading) {
-                                        Text("Playlist Name")
-                                            .font(.body)
-                                        Text("Curated for you")
-                                            .font(.caption)
-                                            .foregroundColor(.gray)
-                                    }
-                                    Spacer()
-                                }
-                                .padding(.horizontal)
-                            }
-                        }
+                        .buttonStyle(PlainButtonStyle()) // Optional: to avoid the default button style
+                        .listRowSeparator(.hidden, edges: .all)
                     }
-                    .padding(.vertical)
+                }
+                .listStyle(.plain)
+                .navigationTitle("Search for Songs")
+                .searchable(text: $viewModel.searchText, prompt: "Search for songs...")
+                .onChange(of: viewModel.searchText) { old, newSearchTerm in
+                    performSearch()
+                }
+
+                if isPerformingSearch {
+                    ProgressView()
+                        .padding(.trailing)
+                } else {
+                    if !searchResultSongs.isEmpty {
+                        Text("Results found: \(searchResultSongs.count)")
+                            .foregroundColor(.gray)
+                            .padding()
+                    } else if !isPerformingSearch && !searchTerm.isEmpty {
+                        Text("No results found.")
+                            .foregroundColor(.gray)
+                            .padding()
+                    } else if !(musicSubscription?.canPlayCatalogContent ?? false) {
+                        Text("You need an active subscription to view content.")
+                            .foregroundColor(.red)
+                            .padding()
+                    }
+                }
+
+                Spacer()
+            }
+            .task {
+                for await subscription in MusicSubscription.subscriptionUpdates {
+                    self.musicSubscription = subscription
                 }
             }
-            .navigationTitle("Explore")
+        }
+    }
+
+    private func performSearch() {
+        Task {
+            do {
+                let request = MusicCatalogSearchRequest(term: viewModel.searchText, types: [Song.self])
+                self.isPerformingSearch = true
+                let response = try await request.response()
+                self.isPerformingSearch = false
+                self.searchResultSongs = response.songs
+            } catch {
+                print(error.localizedDescription)
+                self.isPerformingSearch = false
+            }
         }
     }
 }
+
+class ExploreViewModel: ObservableObject {
+    @Published var searchText: String = ""
+}
+
 
 #Preview {
     ExploreView()

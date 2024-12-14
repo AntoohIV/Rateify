@@ -10,9 +10,22 @@
 		AEA3AD8D2D03480C00748DCB /* Rateify.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Rateify.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		AE49E6222D09D0B200D1DE60 /* Exceptions for "Rateify" folder in "Rateify" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = AEA3AD8C2D03480C00748DCB /* Rateify */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		AEA3AD8F2D03480C00748DCB /* Rateify */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				AE49E6222D09D0B200D1DE60 /* Exceptions for "Rateify" folder in "Rateify" target */,
+			);
 			path = Rateify;
 			sourceTree = "<group>";
 		};
@@ -255,6 +268,8 @@
 				DEVELOPMENT_TEAM = FJ6Y4P3MGH;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Rateify/Info.plist;
+				INFOPLIST_KEY_NSAppleMusicUsageDescription = "give the access to music";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -284,6 +299,8 @@
 				DEVELOPMENT_TEAM = FJ6Y4P3MGH;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Rateify/Info.plist;
+				INFOPLIST_KEY_NSAppleMusicUsageDescription = "give the access to music";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

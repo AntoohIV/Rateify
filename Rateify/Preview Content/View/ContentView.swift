@@ -1,6 +1,10 @@
 import SwiftUI
+import MusicKit
 
 struct ContentView: View {
+    
+    @AppStorage("isWelcomeViewShowing") var isWelcomeViewShowing: Bool = true
+    
     var body: some View {
         TabView {
             HomeView()
@@ -13,21 +17,16 @@ struct ContentView: View {
                     Image(systemName: "magnifyingglass")
                     Text("Explore")
                 }
-            ProfileView()  // Cambiato il nome della vista a ProfileView
+            ProfileView()
                 .tabItem {
                     Image(systemName: "person")
                     Text("Profile")
                 }
         }
+        .welcomeSheet() // Usa il modificatore per mostrare la WelcomeView come sheet
     }
 }
 
-
-
-
-
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
-    }
+#Preview {
+    ContentView()
 }
