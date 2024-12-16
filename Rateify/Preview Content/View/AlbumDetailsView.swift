@@ -9,6 +9,7 @@ import MusicKit
 
 struct AlbumDetailsView: View {
     @State private var updatedAlbumObject: Album?
+    @State private var rating: Int? = nil
     var album: Album
 
     var body: some View {
@@ -50,6 +51,27 @@ struct AlbumDetailsView: View {
 
                 Divider()
 
+                // Valutazione da 1 a 5 stelle
+                VStack(spacing: 10) {
+                    Text("Rate this Song")
+                        .font(.headline)
+
+                    HStack {
+                        ForEach(1...5, id: \.self) { star in
+                            Button(action: {
+                                rating = star
+                            }) {
+                                Image(systemName: star <= (rating ?? 0) ? "star.fill" : "star")
+                                    .foregroundColor(star <= (rating ?? 0) ? .yellow : .gray)
+                                    .font(.title)
+                            }
+                        }
+                    }
+                }
+                .padding(.horizontal)
+
+                Divider()
+
                 // Tracklist
                 VStack(alignment: .leading, spacing: 10) {
                     Text("Tracklist")
@@ -85,7 +107,7 @@ struct AlbumDetailsView: View {
 
                 Divider()
 
-                // Pulsanti per riprodurre l'album
+                // Pulsante per riprodurre l'album
                 VStack(spacing: 10) {
                     Button("Play Album with System Player") {
                         Task {
@@ -98,18 +120,6 @@ struct AlbumDetailsView: View {
                         }
                     }
                     .buttonStyle(.borderedProminent)
-
-                    Button("Play Album with In-App Player") {
-                        Task {
-                            ApplicationMusicPlayer.shared.queue = .init(for: [album])
-                            do {
-                                try await ApplicationMusicPlayer.shared.play()
-                            } catch {
-                                print(error.localizedDescription)
-                            }
-                        }
-                    }
-                    .buttonStyle(.bordered)
                 }
                 .padding(.top)
 

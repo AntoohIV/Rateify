@@ -11,8 +11,8 @@ import SwiftData
 
 struct ProfileView: View {
     // Dati di esempio (questi dovrebbero essere collegati al tuo modello di dati o database)
+    @State private var userName = "Nome Utente" // Variabile di stato per il nome dell'utente
     let userImage = "profile_image" // Il nome dell'immagine dell'utente
-    let userName = "Nome Utente"
     
     // Esempio di canzoni e album votati
     let ratedSongs = ["Song 1", "Song 2", "Song 3"]
@@ -31,10 +31,15 @@ struct ProfileView: View {
                         .overlay(Circle().stroke(Color.white, lineWidth: 4))
                         .shadow(radius: 10)
                     
-                    Text(userName)
+                    // Campo di testo per il nome dell'utente
+                    TextField("Nome Utente", text: $userName)
                         .font(.title)
                         .fontWeight(.bold)
                         .padding(.top, 10)
+                        .padding()
+                        .background(Color.white)
+                        .cornerRadius(10)
+                        .shadow(radius: 5)
                 }
                 
                 // Lista delle canzoni votate
@@ -69,4 +74,3 @@ struct ProfileView_Previews: PreviewProvider {
         ProfileView()
     }
 }
-

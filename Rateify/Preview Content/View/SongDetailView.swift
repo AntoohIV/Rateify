@@ -1,84 +1,89 @@
-    import SwiftUI
-    import MusicKit
+import SwiftUI
+import MusicKit
 
-    struct SongDetailView: View {
-        var song: Song
-        @State private var rating: Int? = nil
-        @State private var showMenu = false
+struct SongDetailView: View {
+    var song: Song
+    @State private var rating: Int? = nil
 
-        var body: some View {
-            VStack(spacing: 16) {
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                // Copertura dell'immagine della canzone
                 if let artwork = song.artwork {
                     ArtworkImage(artwork, height: 200)
                         .cornerRadius(16)
+                        .shadow(radius: 5)
+                } else {
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.3))
+                        .frame(width: 200, height: 200)
+                        .cornerRadius(16)
+                        .overlay(Text("No Artwork Available").foregroundColor(.gray))
                 }
-                
+
+                // Titolo della canzone
                 Text(song.title)
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .multilineTextAlignment(.center) // Per allineare al centro
-                    .lineLimit(nil) // Permette il testo su più righe
-                    .frame(maxWidth: .infinity) // Assicura che si adatti al contenitore
-
-                Text("Artist: \(song.artistName)")
                     .font(.title2)
-                    .foregroundColor(.gray)
+                    .bold()
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
 
-                Text(song.albumTitle ?? "Unknown Album")
-                    .font(.title3)
-                    .foregroundColor(.gray)
+                // Informazioni aggiuntive (Artista e Album)
+                VStack(alignment: .center, spacing: 10) {
+                    Text("Artist: \(song.artistName)")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
 
-                // Rating Buttons
-                HStack(spacing: 8) {
-                    ForEach(1...5, id: \.self) { star in
-                        Button(action: {
-                            rating = star
-                        }) {
-                            Image(systemName: star <= (rating ?? 0) ? "star.fill" : "star")
-                                .foregroundColor(star <= (rating ?? 0) ? .yellow : .gray)
-                                .font(.title)
-                        }
-                        .buttonStyle(BorderlessButtonStyle())
-                    }
+                    Text(song.albumTitle ?? "Unknown Album")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
                 }
-                .padding(.top)
+                .padding(.horizontal)
 
-                // Options Menu
-                HStack(spacing: 16) {
-                    Button(action: {
-                        // Rate button action
-                    }) {
-                        HStack {
-                            Image(systemName: "star")
-                            Text("Rate Album")
-                        }
-                        .padding()
-                        .background(RoundedRectangle(cornerRadius: 8).stroke())
-                    }
-                    
-                    Menu {
-                        Button(action: {
-                            // Play song action
-                        }) {
-                            Label("Play Song", systemImage: "play.circle")
-                        }
+                Divider()
 
-                        Button(action: {
-                            // Add to listen later action
-                        }) {
-                            Label("Listen Later", systemImage: "clock")
+                // Rating della canzone
+                VStack(spacing: 10) {
+                    Text("Rate this Song")
+                        .font(.headline)
+
+                    HStack {
+                        ForEach(1...5, id: \.self) { star in
+                            Button(action: {
+                                rating = star
+                            }) {
+                                Image(systemName: star <= (rating ?? 0) ? "star.fill" : "star")
+                                    .foregroundColor(star <= (rating ?? 0) ? .yellow : .gray)
+                                    .font(.title)
+                            }
                         }
-                    } label: {
-                        Image(systemName: "ellipsis")
-                            .padding()
-                            .background(RoundedRectangle(cornerRadius: 8).stroke())
                     }
+                    .padding(.vertical, 10)
                 }
-                .padding(.top)
+
+                Divider()
+
+                // Pulsante per riprodurre la canzone con il lettore musicale di sistema
+                VStack(spacing: 10) {
+                    Button("Play Song with System Player") {
+                        Task {
+                            // Queue per la canzone selezionata
+                            SystemMusicPlayer.shared.queue = .init(for: [song])
+                            do {
+                                try await SystemMusicPlayer.shared.play()
+                            } catch {
+                                print(error.localizedDescription)
+                            }
+                        }
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
 
                 Spacer()
             }
             .padding()
-            .navigationTitle("Song Details")
         }
+        .navigationTitle("Song Details")
+        .navigationBarTitleDisplayMode(.inline)
     }
+}
