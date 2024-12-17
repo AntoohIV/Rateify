@@ -1,3 +1,11 @@
+//
+//  SongInfoView.swift
+//  Rateify
+//
+//  Created by Antonio Odore on 16/12/24.
+//
+
+
 import SwiftUI
 import MusicKit
 

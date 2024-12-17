@@ -1,14 +1,18 @@
 import SwiftUI
 import MusicKit
+import SwiftData
 
 struct SongDetailView: View {
     var song: Song
+    @Environment(\.modelContext) private var context // Per accedere al contesto SwiftData
+    @Query private var ratedSongs: [RatedSong]       // Query per recuperare dati esistenti
+
     @State private var rating: Int? = nil
 
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
-                // Copertura dell'immagine della canzone
+                // Immagine della canzone
                 if let artwork = song.artwork {
                     ArtworkImage(artwork, height: 200)
                         .cornerRadius(16)
@@ -21,28 +25,23 @@ struct SongDetailView: View {
                         .overlay(Text("No Artwork Available").foregroundColor(.gray))
                 }
 
-                // Titolo della canzone
+                // Titolo e informazioni
                 Text(song.title)
                     .font(.title2)
                     .bold()
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: .infinity)
 
-                // Informazioni aggiuntive (Artista e Album)
-                VStack(alignment: .center, spacing: 10) {
+                VStack(spacing: 10) {
                     Text("Artist: \(song.artistName)")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
-
                     Text(song.albumTitle ?? "Unknown Album")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
-                .padding(.horizontal)
 
                 Divider()
 
-                // Rating della canzone
+                // Rating
                 VStack(spacing: 10) {
                     Text("Rate this Song")
                         .font(.headline)
@@ -51,6 +50,7 @@ struct SongDetailView: View {
                         ForEach(1...5, id: \.self) { star in
                             Button(action: {
                                 rating = star
+                                saveRating(star)
                             }) {
                                 Image(systemName: star <= (rating ?? 0) ? "star.fill" : "star")
                                     .foregroundColor(star <= (rating ?? 0) ? .yellow : .gray)
@@ -61,29 +61,39 @@ struct SongDetailView: View {
                     .padding(.vertical, 10)
                 }
 
-                Divider()
-
-                // Pulsante per riprodurre la canzone con il lettore musicale di sistema
-                VStack(spacing: 10) {
-                    Button("Play Song with System Player") {
-                        Task {
-                            // Queue per la canzone selezionata
-                            SystemMusicPlayer.shared.queue = .init(for: [song])
-                            do {
-                                try await SystemMusicPlayer.shared.play()
-                            } catch {
-                                print(error.localizedDescription)
-                            }
-                        }
-                    }
-                    .buttonStyle(.borderedProminent)
-                }
-
                 Spacer()
             }
             .padding()
         }
         .navigationTitle("Song Details")
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            loadExistingRating()
+        }
+    }
+
+    // MARK: - Metodi SwiftData
+    private func loadExistingRating() {
+        if let existingRating = ratedSongs.first(where: { $0.id == song.id.rawValue }) {
+            self.rating = existingRating.rating
+        }
+    }
+
+    private func saveRating(_ newRating: Int) {
+        if let existingSong = ratedSongs.first(where: { $0.id == song.id.rawValue }) {
+            // Aggiorna il rating esistente
+            existingSong.rating = newRating
+        } else {
+            // Crea una nuova entry
+            let ratedSong = RatedSong(
+                id: song.id.rawValue,
+                title: song.title,
+                artistName: song.artistName,
+                albumTitle: song.albumTitle,
+                artworkURL: song.artwork?.url(width: 200, height: 200),
+                rating: newRating
+            )
+            context.insert(ratedSong)
+        }
     }
 }
