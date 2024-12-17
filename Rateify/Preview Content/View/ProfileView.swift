@@ -15,6 +15,7 @@ struct ProfileView: View {
         ScrollView {
             VStack(spacing: 30) {
                 // Sezione per l'immagine e nome dell'utente
+                // Sezione per l'immagine e nome dell'utente
                 VStack {
                     // Immagine utente con Image Picker
                     if let image = selectedImage {
@@ -24,13 +25,13 @@ struct ProfileView: View {
                             .frame(width: 150, height: 150)
                             .clipShape(Circle())
                             .overlay(Circle().stroke(Color.blue, lineWidth: 4))
-                            .shadow(radius: 10)
                             .clipped()
                             .onTapGesture {
                                 isImagePickerPresented = true
                             }
                     } else {
-                        Image(systemName: "person.circle.fill")
+                        // Icona fotocamera invece della persona
+                        Image(systemName: "camera.fill")
                             .resizable()
                             .scaledToFit()
                             .frame(width: 150, height: 150)
@@ -51,6 +52,7 @@ struct ProfileView: View {
                         .padding(.horizontal)
                 }
                 .padding(.top, 20)
+
 
                 // Sezione delle canzoni votate
                 VStack(alignment: .leading, spacing: 15) {
