@@ -63,6 +63,7 @@ struct SongDetailView: View {
 
                 Spacer()
             }
+            
             .padding()
         }
         .navigationTitle("Song Details")
@@ -71,6 +72,7 @@ struct SongDetailView: View {
             loadExistingRating()
         }
     }
+
 
     // MARK: - Metodi SwiftData
     private func loadExistingRating() {

@@ -15,7 +15,6 @@ struct ProfileView: View {
         ScrollView {
             VStack(spacing: 30) {
                 // Sezione per l'immagine e nome dell'utente
-                // Sezione per l'immagine e nome dell'utente
                 VStack {
                     // Immagine utente con Image Picker
                     if let image = selectedImage {
@@ -53,7 +52,6 @@ struct ProfileView: View {
                 }
                 .padding(.top, 20)
 
-
                 // Sezione delle canzoni votate
                 VStack(alignment: .leading, spacing: 15) {
                     Text("Rated Songs")
@@ -72,24 +70,29 @@ struct ProfileView: View {
                                 HStack {
                                     // Mostra l'artwork della canzone
                                     if let artworkURL = song.artworkURL {
-                                        AsyncImage(url: artworkURL) { image in
-                                            image.resizable()
-                                                .scaledToFill()
-                                                .frame(width: 50, height: 50)
-                                                .cornerRadius(10)  // Aggiungi questa riga per rendere i bordi arrotondati
-                                        } placeholder: {
-                                            ProgressView()
+                                        AsyncImage(url: artworkURL) { imagePhase in
+                                            if let image = imagePhase.image {
+                                                // Mostra l'immagine quando caricata
+                                                image
+                                                    .resizable()
+                                                    .scaledToFill()
+                                                    .frame(width: 50, height: 50)
+                                                    .cornerRadius(10)
+                                            } else {
+                                                // Mostra un placeholder finché l'immagine non è caricata
+                                                ProgressView()
+                                                    .frame(width: 50, height: 50)
+                                            }
                                         }
                                     } else {
-                                        // Se non c'è un artwork, mostra un'icona di default
+                                        // Mostra un'immagine di default se non c'è un artwork
                                         Image(systemName: "music.note")
                                             .resizable()
                                             .scaledToFit()
                                             .frame(width: 50, height: 50)
-                                            .cornerRadius(10)  // Anche qui aggiungi cornerRadius
+                                            .cornerRadius(10)
                                             .foregroundColor(.blue)
                                     }
-
                                     
                                     VStack(alignment: .leading) {
                                         Text(song.title)
@@ -123,7 +126,7 @@ struct ProfileView: View {
                         .font(.headline)
                         .foregroundColor(.primary)
                         .padding(.leading)
-                    
+
                     if ratedAlbums.isEmpty {
                         Text("No albums rated.")
                             .font(.subheadline)
@@ -133,6 +136,32 @@ struct ProfileView: View {
                         ForEach(ratedAlbums) { album in
                             VStack(alignment: .leading) {
                                 HStack {
+                                    // Mostra l'artwork dell'album
+                                    if let artworkURL = album.artworkURL {
+                                        AsyncImage(url: artworkURL) { imagePhase in
+                                            if let image = imagePhase.image {
+                                                // Mostra l'immagine quando caricata
+                                                image
+                                                    .resizable()
+                                                    .scaledToFill()
+                                                    .frame(width: 50, height: 50)
+                                                    .cornerRadius(10)
+                                            } else {
+                                                // Mostra un placeholder finché l'immagine non è caricata
+                                                ProgressView()
+                                                    .frame(width: 50, height: 50)
+                                            }
+                                        }
+                                    } else {
+                                        // Mostra un'immagine di default se non c'è un artwork
+                                        Image(systemName: "music.note")
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 50, height: 50)
+                                            .cornerRadius(10)
+                                            .foregroundColor(.blue)
+                                    }
+
                                     VStack(alignment: .leading) {
                                         Text(album.title)
                                             .font(.headline)
@@ -142,6 +171,8 @@ struct ProfileView: View {
                                             .foregroundColor(.secondary)
                                     }
                                     Spacer()
+
+                                    // Mostra il voto come stelle
                                     HStack {
                                         ForEach(1...5, id: \.self) { star in
                                             Image(systemName: star <= album.rating ? "star.fill" : "star")
@@ -157,6 +188,7 @@ struct ProfileView: View {
                     }
                 }
                 .padding(.bottom, 20)
+
             }
             .padding()
             .sheet(isPresented: $isImagePickerPresented) {
@@ -166,4 +198,3 @@ struct ProfileView: View {
         .background(Color(.systemGray6))
     }
 }
-

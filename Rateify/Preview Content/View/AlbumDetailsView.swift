@@ -1,10 +1,3 @@
-//
-//  AlbumDetailsView.swift
-//  Rateify
-//
-//  Created by Antonio Odore on 14/12/24.
-//
-
 import SwiftUI
 import MusicKit
 import SwiftData
@@ -15,7 +8,9 @@ struct AlbumDetailsView: View {
     @State private var rating: Int? = nil // Stato per la valutazione dell'album
     
     var album: Album
-
+    
+    private let artworkHeight: CGFloat = 200 // Altezza costante per l'artwork
+    
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
@@ -46,30 +41,29 @@ struct AlbumDetailsView: View {
         .navigationTitle("Album Details")
         .navigationBarTitleDisplayMode(.inline)
         .task {
-            self.updatedAlbumObject = try? await album.with([.tracks]) // Carica le tracce dell'album
+            await loadAlbumTracks()
+            loadExistingRating() // Carica la valutazione esistente
         }
     }
     
     // MARK: - Sezioni della UI
     
-    // Copertina dell'album
     private var albumArtwork: some View {
         Group {
             if let artwork = album.artwork {
-                ArtworkImage(artwork, height: 200)
+                ArtworkImage(artwork, height: artworkHeight)
                     .cornerRadius(10)
                     .shadow(radius: 5)
             } else {
                 Rectangle()
                     .fill(Color.gray.opacity(0.3))
-                    .frame(width: 200, height: 200)
+                    .frame(width: artworkHeight, height: artworkHeight)
                     .cornerRadius(10)
                     .overlay(Text("No Artwork Available").foregroundColor(.gray))
             }
         }
     }
     
-    // Informazioni principali
     private var albumInfo: some View {
         VStack(alignment: .center, spacing: 10) {
             Text(album.title)
@@ -91,7 +85,6 @@ struct AlbumDetailsView: View {
         }
     }
     
-    // Sezione di valutazione (stelle)
     private var ratingSection: some View {
         VStack(spacing: 10) {
             Text("Rate this Album")
@@ -100,8 +93,10 @@ struct AlbumDetailsView: View {
             HStack {
                 ForEach(1...5, id: \.self) { star in
                     Button(action: {
-                        rating = star
-                        saveRating() // Salva la valutazione
+                        withAnimation {
+                            rating = star
+                            saveRating() // Salva la valutazione
+                        }
                     }) {
                         Image(systemName: star <= (rating ?? 0) ? "star.fill" : "star")
                             .foregroundColor(star <= (rating ?? 0) ? .yellow : .gray)
@@ -112,7 +107,6 @@ struct AlbumDetailsView: View {
         }
     }
     
-    // Tracklist
     private var tracklistSection: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Tracklist")
@@ -145,7 +139,6 @@ struct AlbumDetailsView: View {
         }
     }
     
-    // Pulsante per riprodurre l'album
     private var playButton: some View {
         VStack(spacing: 10) {
             Button("Play Album with System Player") {
@@ -168,31 +161,52 @@ struct AlbumDetailsView: View {
     private func saveRating() {
         guard let rating = rating else { return }
         
+        // Estrai l'URL dell'artwork
+        let artworkURL = album.artwork?.url
+        
         // Controlla se esiste già una valutazione per questo album
-        let existingRating = try? modelContext.fetch(FetchDescriptor<RatedAlbum>(
-            predicate: #Predicate { $0.id == album.id.rawValue }
-        ))
-        
-        if let existing = existingRating?.first {
-            existing.rating = rating
-            existing.dateRated = Date()
-        } else {
-            // Crea una nuova valutazione
-            let newRatedAlbum = RatedAlbum(
-                id: album.id.rawValue,
-                title: album.title,
-                artistName: album.artistName,
-                rating: rating,
-                dateRated: Date()
-            )
-            modelContext.insert(newRatedAlbum)
-        }
-        
         do {
+            let existingRating = try modelContext.fetch(FetchDescriptor<RatedAlbum>(
+                predicate: #Predicate { $0.id == album.id.rawValue }
+            ))
+            
+            if let existing = existingRating.first {
+                existing.rating = rating
+            } else {
+                // Crea una nuova valutazione
+                let newRatedAlbum = RatedAlbum(
+                    id: album.id.rawValue,
+                    title: album.title,
+                    artistName: album.artistName,
+                    rating: rating,
+                    artworkURL: album.artwork?.url(width: 200, height: 200)
+                )
+                modelContext.insert(newRatedAlbum)
+            }
+            
             try modelContext.save()
             print("Rating saved successfully")
         } catch {
-            print("Failed to save rating: \(error)")
+            print("Failed to save rating: \(error.localizedDescription)")
+        }
+    }
+    
+    // MARK: - Funzione per caricare le tracce dell'album
+    
+    private func loadAlbumTracks() async {
+        do {
+            self.updatedAlbumObject = try await album.with([.tracks])
+        } catch {
+            print("Failed to load tracks: \(error.localizedDescription)")
+        }
+    }
+    
+    // Funzione per caricare la valutazione esistente
+    private func loadExistingRating() {
+        if let existingRating = try? modelContext.fetch(FetchDescriptor<RatedAlbum>(
+            predicate: #Predicate { $0.id == album.id.rawValue }
+        )).first {
+            self.rating = existingRating.rating
         }
     }
 }

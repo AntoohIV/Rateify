@@ -11,18 +11,18 @@ import SwiftData
 
 @Model
 class RatedAlbum {
-    @Attribute(.unique) var id: String // Identificatore unico per l'album
+    @Attribute(.unique) var id: String
     var title: String
     var artistName: String
     var rating: Int
-    var dateRated: Date
+    var artworkURL: URL?  // Aggiungi questa proprietà
 
-    init(id: String, title: String, artistName: String, rating: Int, dateRated: Date) {
+    init(id: String, title: String, artistName: String, rating: Int = 0, artworkURL: URL?) {
         self.id = id
         self.title = title
         self.artistName = artistName
         self.rating = rating
-        self.dateRated = dateRated
+        self.artworkURL = artworkURL
     }
 }
 
