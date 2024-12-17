@@ -1,84 +1,101 @@
-    import SwiftUI
-    import MusicKit
+import SwiftUI
+import MusicKit
+import SwiftData
 
-    struct SongDetailView: View {
-        var song: Song
-        @State private var rating: Int? = nil
-        @State private var showMenu = false
+struct SongDetailView: View {
+    var song: Song
+    @Environment(\.modelContext) private var context // Per accedere al contesto SwiftData
+    @Query private var ratedSongs: [RatedSong]       // Query per recuperare dati esistenti
 
-        var body: some View {
-            VStack(spacing: 16) {
+    @State private var rating: Int? = nil
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                // Immagine della canzone
                 if let artwork = song.artwork {
                     ArtworkImage(artwork, height: 200)
                         .cornerRadius(16)
+                        .shadow(radius: 5)
+                } else {
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.3))
+                        .frame(width: 200, height: 200)
+                        .cornerRadius(16)
+                        .overlay(Text("No Artwork Available").foregroundColor(.gray))
                 }
-                
+
+                // Titolo e informazioni
                 Text(song.title)
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .multilineTextAlignment(.center) // Per allineare al centro
-                    .lineLimit(nil) // Permette il testo su più righe
-                    .frame(maxWidth: .infinity) // Assicura che si adatti al contenitore
-
-                Text("Artist: \(song.artistName)")
                     .font(.title2)
-                    .foregroundColor(.gray)
+                    .bold()
 
-                Text(song.albumTitle ?? "Unknown Album")
-                    .font(.title3)
-                    .foregroundColor(.gray)
-
-                // Rating Buttons
-                HStack(spacing: 8) {
-                    ForEach(1...5, id: \.self) { star in
-                        Button(action: {
-                            rating = star
-                        }) {
-                            Image(systemName: star <= (rating ?? 0) ? "star.fill" : "star")
-                                .foregroundColor(star <= (rating ?? 0) ? .yellow : .gray)
-                                .font(.title)
-                        }
-                        .buttonStyle(BorderlessButtonStyle())
-                    }
+                VStack(spacing: 10) {
+                    Text("Artist: \(song.artistName)")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    Text(song.albumTitle ?? "Unknown Album")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
                 }
-                .padding(.top)
 
-                // Options Menu
-                HStack(spacing: 16) {
-                    Button(action: {
-                        // Rate button action
-                    }) {
-                        HStack {
-                            Image(systemName: "star")
-                            Text("Rate Album")
-                        }
-                        .padding()
-                        .background(RoundedRectangle(cornerRadius: 8).stroke())
-                    }
-                    
-                    Menu {
-                        Button(action: {
-                            // Play song action
-                        }) {
-                            Label("Play Song", systemImage: "play.circle")
-                        }
+                Divider()
 
-                        Button(action: {
-                            // Add to listen later action
-                        }) {
-                            Label("Listen Later", systemImage: "clock")
+                // Rating
+                VStack(spacing: 10) {
+                    Text("Rate this Song")
+                        .font(.headline)
+
+                    HStack {
+                        ForEach(1...5, id: \.self) { star in
+                            Button(action: {
+                                rating = star
+                                saveRating(star)
+                            }) {
+                                Image(systemName: star <= (rating ?? 0) ? "star.fill" : "star")
+                                    .foregroundColor(star <= (rating ?? 0) ? .yellow : .gray)
+                                    .font(.title)
+                            }
                         }
-                    } label: {
-                        Image(systemName: "ellipsis")
-                            .padding()
-                            .background(RoundedRectangle(cornerRadius: 8).stroke())
                     }
+                    .padding(.vertical, 10)
                 }
-                .padding(.top)
 
                 Spacer()
             }
+            
             .padding()
-            .navigationTitle("Song Details")
+        }
+        .navigationTitle("Song Details")
+        .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            loadExistingRating()
         }
     }
+
+
+    // MARK: - Metodi SwiftData
+    private func loadExistingRating() {
+        if let existingRating = ratedSongs.first(where: { $0.id == song.id.rawValue }) {
+            self.rating = existingRating.rating
+        }
+    }
+
+    private func saveRating(_ newRating: Int) {
+        if let existingSong = ratedSongs.first(where: { $0.id == song.id.rawValue }) {
+            // Aggiorna il rating esistente
+            existingSong.rating = newRating
+        } else {
+            // Crea una nuova entry
+            let ratedSong = RatedSong(
+                id: song.id.rawValue,
+                title: song.title,
+                artistName: song.artistName,
+                albumTitle: song.albumTitle,
+                artworkURL: song.artwork?.url(width: 200, height: 200),
+                rating: newRating
+            )
+            context.insert(ratedSong)
+        }
+    }
+}
