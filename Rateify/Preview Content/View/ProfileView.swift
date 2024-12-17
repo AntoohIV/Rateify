@@ -5,7 +5,7 @@ import PhotosUI
 
 struct ProfileView: View {
     // Nome dell'utente
-    @State private var userName = "Nome Utente"
+    @State private var userName = "UserName"
     @State private var selectedImage: UIImage? // Immagine selezionata dall'utente
     @State private var isImagePickerPresented = false // Stato per mostrare l'Image Picker
     
@@ -15,8 +15,8 @@ struct ProfileView: View {
     
     var body: some View {
         ScrollView {
-            VStack(spacing: 20) {
-                // Immagine e nome dell'utente
+            VStack(spacing: 30) {
+                // Sezione per l'immagine e nome dell'utente
                 VStack {
                     // Immagine utente con Image Picker
                     if let image = selectedImage {
@@ -24,104 +24,126 @@ struct ProfileView: View {
                             .resizable()
                             .scaledToFill()
                             .frame(width: 150, height: 150)
-                            .clipShape(Circle()) // Rende l'immagine un cerchio
-                            .clipped() // Assicura che l'immagine non esca dai limiti
+                            .clipShape(Circle())
+                            .overlay(Circle().stroke(Color.blue, lineWidth: 4)) // Aggiunta bordatura blu
+                            .shadow(radius: 10) // Ombra per l'immagine
+                            .clipped()
                             .onTapGesture {
                                 isImagePickerPresented = true
                             }
                     } else {
-                        Image(systemName: "person.circle")
+                        Image(systemName: "person.circle.fill")
                             .resizable()
                             .scaledToFit()
                             .frame(width: 150, height: 150)
-                            .foregroundColor(.gray)
+                            .foregroundColor(.blue)
                             .onTapGesture {
                                 isImagePickerPresented = true
                             }
                     }
                     
-                    TextField("Nome Utente", text: $userName)
-                        .font(.title)
+                    // Nome dell'utente
+                    TextField("UserName", text: $userName)
+                        .font(.title2)
                         .fontWeight(.bold)
                         .multilineTextAlignment(.center)
                         .padding(.top, 10)
+                        .foregroundColor(.primary)
+                        .textFieldStyle(RoundedBorderTextFieldStyle()) // Stile del TextField
+                        .padding(.horizontal)
                 }
-                
-                // Lista delle canzoni votate
-                VStack(alignment: .leading, spacing: 10) {
-                    Text("Canzoni Votate")
+                .padding(.top, 20)
+
+                // Sezione delle canzoni votate
+                VStack(alignment: .leading, spacing: 15) {
+                    Text("Rated Songs")
                         .font(.headline)
+                        .foregroundColor(.primary)
                         .padding(.leading)
                     
                     if ratedSongs.isEmpty {
-                        Text("Nessuna canzone votata.")
+                        Text("No songs voted.")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                             .padding(.leading)
                     } else {
                         ForEach(ratedSongs) { song in
-                            HStack {
-                                VStack(alignment: .leading) {
-                                    Text(song.title)
-                                        .font(.headline)
-                                    Text("Artista: \(song.artistName)")
-                                        .font(.subheadline)
-                                        .foregroundColor(.secondary)
-                                }
-                                Spacer()
-                                // Mostra il voto come stelle
+                            VStack(alignment: .leading) {
                                 HStack {
-                                    ForEach(1...5, id: \.self) { star in
-                                        Image(systemName: star <= song.rating ? "star.fill" : "star")
-                                            .foregroundColor(star <= song.rating ? .yellow : .gray)
+                                    VStack(alignment: .leading) {
+                                        Text(song.title)
+                                            .font(.headline)
+                                            .foregroundColor(.primary)
+                                        Text("Artista: \(song.artistName)")
+                                            .font(.subheadline)
+                                            .foregroundColor(.secondary)
+                                    }
+                                    Spacer()
+                                    // Mostra il voto come stelle
+                                    HStack {
+                                        ForEach(1...5, id: \.self) { star in
+                                            Image(systemName: star <= song.rating ? "star.fill" : "star")
+                                                .foregroundColor(star <= song.rating ? .yellow : .gray)
+                                        }
                                     }
                                 }
+                                .padding(.horizontal)
+                                Divider() // Separatore tra le canzoni
+                                    .padding(.vertical, 5)
                             }
-                            .padding(.horizontal)
                         }
                     }
                 }
-                
-                // Lista degli album votati
-                VStack(alignment: .leading, spacing: 10) {
-                    Text("Album Votati")
+                .padding(.bottom, 20)
+
+                // Sezione degli album votati
+                VStack(alignment: .leading, spacing: 15) {
+                    Text("Rated Albums")
                         .font(.headline)
+                        .foregroundColor(.primary)
                         .padding(.leading)
                     
                     if ratedAlbums.isEmpty {
-                        Text("Nessun album votato.")
+                        Text("No albums rated.")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                             .padding(.leading)
                     } else {
                         ForEach(ratedAlbums) { album in
-                            HStack {
-                                VStack(alignment: .leading) {
-                                    Text(album.title)
-                                        .font(.headline)
-                                    Text("Artista: \(album.artistName)")
-                                        .font(.subheadline)
-                                        .foregroundColor(.secondary)
-                                }
-                                Spacer()
-                                // Mostra il voto come stelle per l'album
+                            VStack(alignment: .leading) {
                                 HStack {
-                                    ForEach(1...5, id: \.self) { star in
-                                        Image(systemName: star <= album.rating ? "star.fill" : "star")
-                                            .foregroundColor(star <= album.rating ? .yellow : .gray)
+                                    VStack(alignment: .leading) {
+                                        Text(album.title)
+                                            .font(.headline)
+                                            .foregroundColor(.primary)
+                                        Text("Artista: \(album.artistName)")
+                                            .font(.subheadline)
+                                            .foregroundColor(.secondary)
+                                    }
+                                    Spacer()
+                                    // Mostra il voto come stelle per l'album
+                                    HStack {
+                                        ForEach(1...5, id: \.self) { star in
+                                            Image(systemName: star <= album.rating ? "star.fill" : "star")
+                                                .foregroundColor(star <= album.rating ? .yellow : .gray)
+                                        }
                                     }
                                 }
+                                .padding(.horizontal)
+                                Divider() // Separatore tra gli album
+                                    .padding(.vertical, 5)
                             }
-                            .padding(.horizontal)
                         }
                     }
                 }
+                .padding(.bottom, 20)
             }
             .padding()
             .sheet(isPresented: $isImagePickerPresented) {
                 ImagePicker(selectedImage: $selectedImage)
             }
         }
+        .background(Color(.systemGray6)) // Sfondo grigio chiaro
     }
 }
 
