@@ -4,15 +4,13 @@ import SwiftData
 import PhotosUI
 
 struct ProfileView: View {
-    // Nome dell'utente
     @State private var userName = "UserName"
-    @State private var selectedImage: UIImage? // Immagine selezionata dall'utente
-    @State private var isImagePickerPresented = false // Stato per mostrare l'Image Picker
-    
-    // Query per recuperare le canzoni e gli album votati dal database
+    @State private var selectedImage: UIImage?
+    @State private var isImagePickerPresented = false
+
     @Query var ratedSongs: [RatedSong]
     @Query var ratedAlbums: [RatedAlbum]
-    
+
     var body: some View {
         ScrollView {
             VStack(spacing: 30) {
@@ -25,8 +23,8 @@ struct ProfileView: View {
                             .scaledToFill()
                             .frame(width: 150, height: 150)
                             .clipShape(Circle())
-                            .overlay(Circle().stroke(Color.blue, lineWidth: 4)) // Aggiunta bordatura blu
-                            .shadow(radius: 10) // Ombra per l'immagine
+                            .overlay(Circle().stroke(Color.blue, lineWidth: 4))
+                            .shadow(radius: 10)
                             .clipped()
                             .onTapGesture {
                                 isImagePickerPresented = true
@@ -49,7 +47,7 @@ struct ProfileView: View {
                         .multilineTextAlignment(.center)
                         .padding(.top, 10)
                         .foregroundColor(.primary)
-                        .textFieldStyle(RoundedBorderTextFieldStyle()) // Stile del TextField
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
                         .padding(.horizontal)
                 }
                 .padding(.top, 20)
@@ -70,6 +68,27 @@ struct ProfileView: View {
                         ForEach(ratedSongs) { song in
                             VStack(alignment: .leading) {
                                 HStack {
+                                    // Mostra l'artwork della canzone
+                                    if let artworkURL = song.artworkURL {
+                                        AsyncImage(url: artworkURL) { image in
+                                            image.resizable()
+                                                .scaledToFill()
+                                                .frame(width: 50, height: 50)
+                                                .cornerRadius(10)  // Aggiungi questa riga per rendere i bordi arrotondati
+                                        } placeholder: {
+                                            ProgressView()
+                                        }
+                                    } else {
+                                        // Se non c'è un artwork, mostra un'icona di default
+                                        Image(systemName: "music.note")
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 50, height: 50)
+                                            .cornerRadius(10)  // Anche qui aggiungi cornerRadius
+                                            .foregroundColor(.blue)
+                                    }
+
+                                    
                                     VStack(alignment: .leading) {
                                         Text(song.title)
                                             .font(.headline)
@@ -88,7 +107,7 @@ struct ProfileView: View {
                                     }
                                 }
                                 .padding(.horizontal)
-                                Divider() // Separatore tra le canzoni
+                                Divider()
                                     .padding(.vertical, 5)
                             }
                         }
@@ -96,7 +115,7 @@ struct ProfileView: View {
                 }
                 .padding(.bottom, 20)
 
-                // Sezione degli album votati
+                // Sezione degli album votati (non modificata)
                 VStack(alignment: .leading, spacing: 15) {
                     Text("Rated Albums")
                         .font(.headline)
@@ -121,7 +140,6 @@ struct ProfileView: View {
                                             .foregroundColor(.secondary)
                                     }
                                     Spacer()
-                                    // Mostra il voto come stelle per l'album
                                     HStack {
                                         ForEach(1...5, id: \.self) { star in
                                             Image(systemName: star <= album.rating ? "star.fill" : "star")
@@ -130,7 +148,7 @@ struct ProfileView: View {
                                     }
                                 }
                                 .padding(.horizontal)
-                                Divider() // Separatore tra gli album
+                                Divider()
                                     .padding(.vertical, 5)
                             }
                         }
@@ -143,50 +161,7 @@ struct ProfileView: View {
                 ImagePicker(selectedImage: $selectedImage)
             }
         }
-        .background(Color(.systemGray6)) // Sfondo grigio chiaro
+        .background(Color(.systemGray6))
     }
 }
 
-// Image Picker per selezionare un'immagine dalla libreria
-struct ImagePicker: UIViewControllerRepresentable {
-    @Binding var selectedImage: UIImage?
-    @Environment(\.presentationMode) private var presentationMode
-    
-    func makeUIViewController(context: Context) -> UIImagePickerController {
-        let picker = UIImagePickerController()
-        picker.delegate = context.coordinator
-        picker.sourceType = .photoLibrary
-        return picker
-    }
-    
-    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
-    
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
-    }
-    
-    class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
-        let parent: ImagePicker
-        
-        init(_ parent: ImagePicker) {
-            self.parent = parent
-        }
-        
-        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-            if let uiImage = info[.originalImage] as? UIImage {
-                parent.selectedImage = uiImage
-            }
-            parent.presentationMode.wrappedValue.dismiss()
-        }
-        
-        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-            parent.presentationMode.wrappedValue.dismiss()
-        }
-    }
-}
-
-#Preview {
-    ProfileView()
-        .modelContainer(for: RatedSong.self) // Aggiungi il container SwiftData per RatedSong
-        .modelContainer(for: RatedAlbum.self) // Aggiungi il container SwiftData per RatedAlbum
-}
