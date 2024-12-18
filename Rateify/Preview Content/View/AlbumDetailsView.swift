@@ -102,6 +102,8 @@ struct AlbumDetailsView: View {
                             .foregroundColor(star <= (rating ?? 0) ? .yellow : .gray)
                             .font(.title)
                     }
+                    .accessibilityLabel("Rated \(star) star\(star > 1 ? "s" : "") for the album")
+                    .accessibilityAddTraits(.isButton)
                 }
             }
         }

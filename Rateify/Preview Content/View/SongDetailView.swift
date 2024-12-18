@@ -51,19 +51,37 @@ struct SongDetailView: View {
                             Button(action: {
                                 rating = star
                                 saveRating(star)
+                                UIAccessibility.post(notification: .announcement, argument: "You rated this song \(star) stars.")
                             }) {
                                 Image(systemName: star <= (rating ?? 0) ? "star.fill" : "star")
                                     .foregroundColor(star <= (rating ?? 0) ? .yellow : .gray)
                                     .font(.title)
                             }
+                            .accessibilityLabel("\(star) star")
+                            .accessibilityHint("Rates the song \(star) stars")
                         }
                     }
                     .padding(.vertical, 10)
                 }
 
-                Spacer()
+                Divider()
+
+                // Play Button
+                Button("Play Song with System Player") {
+                    Task {
+                        SystemMusicPlayer.shared.queue = .init(for: [song])
+                        do {
+                            try await SystemMusicPlayer.shared.play()
+                            UIAccessibility.post(notification: .announcement, argument: "Now playing \(song.title) by \(song.artistName).")
+                        } catch {
+                            print("Error playing song: \(error.localizedDescription)")
+                        }
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+                .accessibilityLabel("Play song")
+                .accessibilityHint("Plays the song using the system music player")
             }
-            
             .padding()
         }
         .navigationTitle("Song Details")
@@ -72,7 +90,6 @@ struct SongDetailView: View {
             loadExistingRating()
         }
     }
-
 
     // MARK: - Metodi SwiftData
     private func loadExistingRating() {
