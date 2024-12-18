@@ -4,8 +4,13 @@ import SwiftData
 import PhotosUI
 
 struct ProfileView: View {
-    @State private var userName = "UserName"
-    @State private var selectedImage: UIImage?
+    @State private var userName = UserDefaults.standard.string(forKey: "userName") ?? "UserName"
+    @State private var selectedImage: UIImage? = {
+        if let imageData = UserDefaults.standard.data(forKey: "userImage") {
+            return UIImage(data: imageData)
+        }
+        return nil
+    }()
     @State private var isImagePickerPresented = false
 
     @Query var ratedSongs: [RatedSong]
@@ -38,7 +43,7 @@ struct ProfileView: View {
                             }
                     }
                     // Nome dell'utente
-                    TextField("UserName", text: $userName)
+                    TextField("UserName", text: $userName, onCommit: saveUserName)
                         .font(.title2)
                         .fontWeight(.bold)
                         .multilineTextAlignment(.center)
@@ -189,9 +194,20 @@ struct ProfileView: View {
             }
             .padding()
             .sheet(isPresented: $isImagePickerPresented) {
-                ImagePicker(selectedImage: $selectedImage)
+                ImagePicker(selectedImage: $selectedImage, onImagePicked: saveImage)
             }
         }
         .background(Color(.systemGray6))
+    }
+
+    private func saveUserName() {
+        UserDefaults.standard.set(userName, forKey: "userName")
+    }
+
+    private func saveImage(image: UIImage) {
+        selectedImage = image
+        if let imageData = image.jpegData(compressionQuality: 0.8) {
+            UserDefaults.standard.set(imageData, forKey: "userImage")
+        }
     }
 }
