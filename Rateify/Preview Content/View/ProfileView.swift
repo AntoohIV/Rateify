@@ -24,12 +24,10 @@ struct ProfileView: View {
                             .frame(width: 150, height: 150)
                             .clipShape(Circle())
                             .overlay(Circle().stroke(Color.blue, lineWidth: 4))
-                            .clipped()
                             .onTapGesture {
                                 isImagePickerPresented = true
                             }
                     } else {
-                        // Icona fotocamera invece della persona
                         Image(systemName: "camera.fill")
                             .resizable()
                             .scaledToFit()
@@ -39,7 +37,6 @@ struct ProfileView: View {
                                 isImagePickerPresented = true
                             }
                     }
-                    
                     // Nome dell'utente
                     TextField("UserName", text: $userName)
                         .font(.title2)
